@@ -1,0 +1,85 @@
+id,name,desc
+0,Tauscha,DESN_SE-3-3
+1,"Vogtl. Schiefergebirge - Weisse Elster - Aubach",DETH_SAL-GW-045
+2,"Bergaer Sattel-Weisse Elster",DETH_SAL-GW-046
+3,DÃ¶llnitz-Dahle,DESN_EL-2-5-6
+4,"Oberlauf der WeiÃen Elster",DESN_SAL-GW-043
+5,"Muskauer Heide",DESN_NE-1-1
+6,Zodel-Lodenau,DESN_NE-1-2
+7,Kamenz,DESN_SE-1-3-1
+8,"WeiÃelsterbecken mit Bergbaueinfluss",DESN_SAL-GW-059
+9,"Weisselsterbecken -Gerstenbach",DETH_SAL-GW-057
+10,Niesky,DESN_SP-2-1
+11,Crostwitz,DESN_SE-1-4
+12,OÃling,DESN_SE-1-3-2-1
+13,"Lohsa - Trebendorf",DESN_SP-3-1-1
+14,"Bergaer Sattel und Lobensteiner Horst",DETH_SAL-GW-002
+15,"PalÃ¤ozoikum - Hof",DEBY_5_G007_SNTH
+16,"Untere Zschopau",DESN_FM-4-1
+17,Lober-Leine,DESN_VM-1-1
+18,Elbe,DESN_EL-1-1-2
+19,"Zwickau-Altenburger Fluss",DESN_SAL-GW-056
+20,Ebersbach,DESN_SE-3-5
+21,"Zechsteinrand der Zeitz-Schmoellner Mulde - Pleisse",DETH_SAL-GW-055
+22,Dresden-Nord,DESN_SE-3-4
+23,"Schwarzer Graben",DESN_EL-2-1
+24,"Untere Zwickauer Mulde",DESN_ZM-2-1
+25,Parthegebiet,DESN_SAL-GW-060
+26,ZwÃ¶nitz,DESN_ZM-3-1
+27,Schwarzwasser,DESN_ZM-1-3
+28,Aue-Schlema,DESN_ZM-1-2
+29,"Hallesche und KÃ¶thener MorÃ¤nenlandschaft",DEST_SAL-GW-022
+30,Radibor,DESN_SP-3-2-1
+31,Chemnitz-1,DESN_ZM-3-2
+32,Lungwitzbach,DESN_ZM-2-2
+33,"Mittlere Zschopau",DESN_FM-4-2
+34,WeiÃenberg,DESN_SP-1-3
+35,NÃ¼nchritz,DESN_EL-2-3
+36,"Elbtal und MorÃ¤nenlandschaft DÃ¼bener Heide",DEST_EL-3-1
+37,Herzberg,DEBB_SE-4-2_5304
+38,Lauchhammer,DEBB_SE-4-1_5302
+39,Zeithain,DESN_SE-3-7
+40,Lampertswalde,DESN_SE-3-6
+41,"KÃ¶nigsbrÃ¼ck - Pulsnitz",DESN_SE-2-1-1
+42,Lauta-Hoyerswerda,DESN_SE-1-1-1
+43,Beilrode,DESN_EL-2-2-1
+44,"Ronneburger Horst",DETH_SAL-GW-054
+45,"Oberlauf der PleiÃe",DESN_SAL-GW-053
+46,"Zeitz-WeiÃenfelser Platte (Saale)",DEST_SAL-GW-016
+47,Schwarzbach,DESN_VM-1-3
+48,Chemnitz-2,DESN_ZM-3-3
+49,Strengbach,DESN_VM-2-2
+50,"Zittauer Gebirge",DESN_NE-3
+51,Jahna,DESN_EL-2-4
+52,Kirnitzsch,DESN_EL-1-6-2
+53,Zittau-GÃ¶rlitz,DESN_NE-2
+54,"GroÃraum Leipzig",DESN_SAL-GW-052
+55,Eulagebiet,DESN_SAL-GW-058
+56,Gottleuba,DESN_EL-1-7
+57,Klingenthal-Zwota,DESN_EG-1
+58,Bischofswerda,DESN_EL-1-4
+59,Reichenbach,DESN_SP-2-2
+60,Striegis,DESN_FM-2-2
+61,"Untere Freiberger Mulde",DESN_FM-2-1
+62,GÃ¶ltzschgebiet,DESN_SAL-GW-044
+63,"Obere FlÃ¶ha",DESN_FM-3-2
+64,Lossa,DESN_VM-1-4
+65,"Obere Freiberger Mulde",DESN_FM-1
+66,MÃ¼glitz,DESN_EL-1-8
+67,"SchÃ¶nberg-Bad Brambach",DESN_EG-2
+68,WeiÃeritz,DESN_EL-1-9
+69,Eibenstock,DESN_ZM-1-4
+70,"Sandstein-SÃ¤chsische Kreide",DESN_EL-1-6-1
+71,"Obere Zschopau",DESN_FM-4-3
+72,"Untere FlÃ¶ha",DESN_FM-3-1
+73,Schirgiswalde-Kirchau,DESN_SP-1-1-1
+74,"Vereinigte Mulde 2",DESN_VM-1-2-2
+75,Sedlitz,DEBB_SE-4-1_5301
+76,Welzow,DEBB_HAV_MS_2_5898
+77,JÃ¤mlitz,DEBB_NE-4-2_6701
+78,"Muskauer Faltbogen - Halbendorf",DESN_NE-MFB-1
+79,Tanneberg,DESN_EL-1-10
+80,Zwickau,DESN_ZM-1-1
+81,Moritzburg,DESN_EL-1-3
+82,"Vereinigte Mulde 1",DESN_VM-1-2-1
+83,Sebnitz,DESN_EL-1-5

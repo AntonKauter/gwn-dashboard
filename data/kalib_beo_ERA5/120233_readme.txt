@@ -1,0 +1,35 @@
+2025-11-28 10:25:08
+Modell: KLiWES 3.0 - Simulation
+Szenario: kalib_beo_ERA5
+SRID: UTM33 (EPSG: 25833)
+Datentyp: Zeitreihen
+Zeitliche Auflösung: Monat
+Raumauswahl: GWK 2025
+Raumfilter: aus
+
+---------------------------------------------------------
+Spalten im zip.file -- id, year, month, value  
+---------------------------------------------------------
+ETp_8_42_28_all_month.zip: Potenzielle Evapotranspiration ETp
+P_10_42_28_all_month.zip: Niederschlag P
+rg1_14_42_28_all_month.zip: Zufluss Schneller GW-Speicher rg1
+rg2_15_42_28_all_month.zip: Zufluss Langsamer GW-Speicher rg2
+FP_35_42_28_all_month.zip: Nebelniederschlag FP
+
+----------------------------------------------------------------------------------------------
+Spalten im shp.file/csv.file  -- id, name, desc  
+----------------------------------------------------------------------------------------------
+GWK_2025.zip: Shapefile, CSV 
+
+----------------------------------------------------------------------------------------------
+Nutzungshinweise für Daten des Landesamtes für Umwelt, Landwirtschaft und Geologie:
+----------------------------------------------------------------------------------------------
+1. Werden die Daten oder aus diesen Daten abgeleitete Daten für Präsentations-, Informations- oder Veröffentlichungszwecke verwendet, so ist bei jeder Präsentation und auf jeder Darstellung die Herkunft der Daten an deutlich sichtbarer Stelle anzuzeigen, wie zum Beispiel: »Darstellung auf der Grundlage von Daten des Sächsischen Landesamtes für Umwelt, Landwirtschaft und Geologie«.
+2. Jede Haftung für Schäden aller Art aus der Überlassung, Verwendung und Weiterverarbeitung der Daten ist ausgeschlossen.
+3. Das Landesamt für Umwelt, Landwirtschaft und Geologie übernimmt keine Haftung oder Garantie für die Aktualität, Richtigkeit oder Vollständigkeit der bereitgestellten Informationen.
+4. Die Bereitstellung der Daten im Internet begründet keinerlei Anspruch auf weitere oder künftige Datenbereitstellungen dieser oder anderer Art.
+5. Das Landesamt für Umwelt, Landwirtschaft und Geologie behält sich vor, die Daten ohne Ankündigung und jeder Zeit zu ändern.
+
+Weitere rechtliche Hinweise im Zusammenhang mit der webbasierten Bereitstellung und Nutzung von Daten des LfULG ergeben sich hinsichtlich der folgenden Aspekte:
+
+https://www.smul.sachsen.de/rechtliche-hinweise-5266.html
