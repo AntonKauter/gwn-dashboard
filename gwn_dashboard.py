@@ -770,9 +770,9 @@ def main():
     # Auswahlmodus
     selection_mode = st.sidebar.radio(
         "Auswahlmodus:",
-        ["Eigene Auswahl", "Alle GWK"]
+        ["Eigene Auswahl", "Alle GWK"],
+        index=1
     )
-    index=1
     
     # if selection_mode == "Vordefinierte Auswahl":
     #     # Standard 4 GWK
