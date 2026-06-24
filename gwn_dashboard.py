@@ -225,7 +225,7 @@ def load_all_data(data_base_dir: str, mapping_csv: str, target_gwk: List[str]) -
     """Lädt und verarbeitet alle Daten"""
     
     data_base_path = Path(data_base_dir)
-    obs_dir = data_base_path / "kalib_beo_ERA5"
+    obs_dir = data_base_path
     
     # Mapping laden
     mapping = load_gwk_mapping(mapping_csv)
