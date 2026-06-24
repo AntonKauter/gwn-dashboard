@@ -5,3 +5,4 @@ plotly==5.18.0
 scipy==1.11.4
 geopandas==0.14.2
 openpyxl==3.1.2
+matplotlib>=3.8
