@@ -743,7 +743,7 @@ def load_messstellen_data(cache_dir: str = "./cache") -> pd.DataFrame:
     )
     
     # GWK-Mapping laden (lokal, muss im Repo liegen)
-    mkz_gwk_path = Path(r"C:\Users\ak34\Desktop\Steckbriefe_neue_GWK\Daten\MKZ_GWK.csv")
+    mkz_gwk_path = Path(__file__).parent / "data" / "MKZ_GWK.csv"
     
     if mkz_gwk_path.exists():
         mess_gwk = pd.read_csv(mkz_gwk_path, sep=';', thousands='.', decimal=',')
@@ -840,7 +840,7 @@ def main():
     
     # Pfade eingeben
     with st.sidebar.expander("📁 Datenpfade", expanded=False):
-        BASE_PATH = Path(r"C:\Users\ak34\Desktop\Steckbriefe_neue_GWK\Daten\kalib_beo_ERA5")
+        BASE_PATH = Path(__file__).parent / "data" / "kalib_beo_ERA5"
         data_base_dir = st.text_input(
             "Basis-Datenordner:",
             value=str(BASE_PATH),
