@@ -8,10 +8,13 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
+import json
+from datetime import datetime, date
 
 import numpy as np
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 if TYPE_CHECKING:
     import geopandas as gpd
@@ -103,12 +106,184 @@ from gwn_dashboard_24062026_v3 import (
     create_interactive_timeseries,
     create_correlation_plot,
     create_comparison_barplot,
-    create_simple_gwk_map,
     
     # Messstellen
     load_messstellen_data,
+    load_mkz_timeseries,
     compute_mkz_trend,
 )
+
+
+# ============================================================================
+# KARTEN-FUNKTIONEN (Original übernommen)
+# ============================================================================
+
+def create_gwk_map(gdf, comparison_df, selected_gwk=None):
+    """Erstellt interaktive Karte mit GWK und Änderungen (Original-Code)."""
+    
+    if gdf is None or gdf.empty:
+        return None
+    
+    # Merge mit Vergleichsdaten
+    gdf_merged = gdf.merge(comparison_df, on='GWK_ID', how='left')
+    
+    # Konvertiere zu GeoJSON
+    gdf_merged['geometry'] = gdf_merged['geometry'].simplify(tolerance=0.001)
+    
+    # Zentroide für Beschriftung
+    gdf_merged['centroid'] = gdf_merged.geometry.centroid
+    gdf_merged['lon'] = gdf_merged.centroid.x
+    gdf_merged['lat'] = gdf_merged.centroid.y
+    
+    # Zentrum berechnen
+    center_lat = gdf_merged['lat'].mean()
+    center_lon = gdf_merged['lon'].mean()
+    
+    # Farbskala für delta_abs
+    def get_color(delta):
+        """Mapping von delta_abs auf Farbe."""
+        if pd.isna(delta):
+            return 'gray'
+        elif delta < -30:
+            return 'darkred'
+        elif delta < -10:
+            return 'red'
+        elif delta < 10:
+            return 'yellow'
+        elif delta < 30:
+            return 'lightgreen'
+        else:
+            return 'darkgreen'
+    
+    fig = go.Figure()
+    
+    # Für jedes GWK eine Trace
+    for idx, row in gdf_merged.iterrows():
+        geom = row['geometry']
+        
+        if geom.geom_type == 'Polygon':
+            coords = list(geom.exterior.coords)
+        elif geom.geom_type == 'MultiPolygon':
+            # Nimm erstes Polygon
+            coords = list(geom.geoms[0].exterior.coords)
+        else:
+            continue
+        
+        lons = [c[0] for c in coords]
+        lats = [c[1] for c in coords]
+        
+        color = get_color(row.get('delta_abs'))
+        
+        # Bestimme ob ausgewählt
+        is_selected = (selected_gwk and row['GWK_ID'] == selected_gwk)
+        line_width = 3 if is_selected else 0.5
+        line_color = 'blue' if is_selected else 'white'
+        
+        hover_text = (
+            f"<b>{row['GWK_ID']}</b><br>"
+            f"GWN 1961-90: {row.get('mean_ref', np.nan):.1f} mm/a<br>"
+            f"GWN 1991-2020: {row.get('mean_hist', np.nan):.1f} mm/a<br>"
+            f"Änderung: {row.get('delta_abs', np.nan):+.1f} mm/a ({row.get('delta_rel_pct', np.nan):+.1f}%)"
+        )
+        
+        fig.add_trace(go.Scattermapbox(
+            lon=lons,
+            lat=lats,
+            mode='lines',
+            fill='toself',
+            fillcolor=color,
+            line=dict(width=line_width, color=line_color),
+            opacity=0.7 if not is_selected else 0.9,
+            name=row['GWK_ID'],
+            text=hover_text,
+            hoverinfo='text',
+            showlegend=False,
+        ))
+    
+    fig.update_layout(
+        mapbox=dict(
+            style='open-street-map',
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=7
+        ),
+        title='<b>GWK-Karte: Änderung der Grundwasserneubildung</b>',
+        height=600,
+        margin={"r":0,"t":40,"l":0,"b":0},
+        hovermode='closest'
+    )
+    
+    return fig
+
+
+# ============================================================================
+# MESSSTELLEN-PLOT FUNKTIONEN
+# ============================================================================
+
+def create_messstellen_plot(mkz: str, gwk_id: str, cache_dir: str = "./cache"):
+    """Erstellt Ganglinie für Messstelle mit GWK-Kontext."""
+    
+    try:
+        # Zeitreihe laden
+        df = load_mkz_timeseries(mkz=mkz, cache_dir=cache_dir)
+        
+        if df is None or df.empty:
+            return None
+        
+        # Plot erstellen
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatter(
+            x=df['Datum'],
+            y=df['Wert'],
+            mode='lines',
+            name=f'GW-Stand {mkz}',
+            line=dict(color='steelblue', width=2),
+            hovertemplate='<b>Datum:</b> %{x}<br><b>GW-Stand:</b> %{y:.2f} m ü. NHN<extra></extra>'
+        ))
+        
+        # Mittelwert
+        mean_val = df['Wert'].mean()
+        fig.add_hline(
+            y=mean_val,
+            line_dash="dash",
+            line_color="red",
+            annotation_text=f"Ø {mean_val:.2f} m",
+            annotation_position="right"
+        )
+        
+        fig.update_layout(
+            title=f"<b>Ganglinie Messstelle {mkz}</b> (GWK: {gwk_id})",
+            xaxis_title="Datum",
+            yaxis_title="Grundwasserstand [m ü. NHN]",
+            hovermode='x unified',
+            height=500,
+            template='plotly_white'
+        )
+        
+        return fig
+    
+    except Exception as e:
+        logger.exception(f"Messstellen-Plot failed for {mkz}")
+        return None
+
+
+def get_messstellen_for_gwk(gwk_id: str, messstellen_df: pd.DataFrame) -> list[str]:
+    """Findet Messstellen für ein GWK."""
+    
+    if messstellen_df is None or messstellen_df.empty:
+        return []
+    
+    # Filter nach GWK_ID (falls Spalte existiert)
+    if 'GWK_ID' in messstellen_df.columns:
+        mkz_list = messstellen_df[messstellen_df['GWK_ID'] == gwk_id]['MKZ'].dropna().unique().tolist()
+    else:
+        # Fallback: Name-Matching
+        mkz_list = messstellen_df['MKZ'].dropna().unique().tolist()
+        # Filtere nach Präfix (z.B. "DESN_EL" in MKZ-Namen)
+        prefix = gwk_id.split('-')[0] if '-' in gwk_id else gwk_id[:8]
+        mkz_list = [mkz for mkz in mkz_list if prefix in str(mkz)]
+    
+    return mkz_list[:10]  # Max 10 Messstellen
 
 
 # ============================================================================
@@ -409,14 +584,14 @@ def page_configuration() -> None:
 
 
 # ============================================================================
-# PAGE: ZEITREIHEN
+# PAGE: ZEITREIHEN (mit Messstellen)
 # ============================================================================
 
 def page_timeseries() -> None:
-    """Interaktive Zeitreihen-Plots."""
+    """Interaktive Zeitreihen-Plots mit Messstellen."""
     
     st.title("📈 Zeitreihen-Analyse")
-    st.markdown("Visualisieren Sie GWN, Niederschlag und ETp über Zeit.")
+    st.markdown("Visualisieren Sie GWN, Niederschlag, ETp und Grundwasserstände über Zeit.")
     
     _show_workflow_step(2)
     st.markdown("")
@@ -511,7 +686,7 @@ def page_timeseries() -> None:
     
     st.divider()
     
-    # ── Plot ──
+    # ── GWN Plot ──
     try:
         fig = create_interactive_timeseries(
             df_gwn=data["gwn"],
@@ -526,6 +701,100 @@ def page_timeseries() -> None:
     except Exception as e:
         st.error(f"❌ Fehler beim Erstellen des Plots:\n\n```\n{e}\n```")
         logger.exception("Timeseries plot failed")
+    
+    # ── Messstellen-Sektion ──
+    st.divider()
+    st.subheader("💧 Grundwasser-Messstellen")
+    
+    with st.expander("ℹ️ Messstellen-Daten", expanded=False):
+        st.markdown(
+            """
+            **Hinweis:** Messstellen-Daten werden von NIWIS (Niedrigwasser-Informationssystem Sachsen) 
+            nachgeladen. Der erste Aufruf kann 1-2 Minuten dauern.
+            
+            Die Daten werden lokal gecacht für schnelleren Zugriff.
+            """
+        )
+    
+    cache_dir = st.text_input(
+        "Cache-Verzeichnis:",
+        value="./cache",
+        help="Lokaler Ordner für NIWIS-Downloads",
+        key="cache_dir_ts"
+    )
+    
+    if st.button("🔄 Messstellen für GWK laden", type="primary"):
+        with st.spinner(f"Lade Messstellen für {selected_gwk}..."):
+            try:
+                # Alle Messstellen laden
+                messstellen = load_messstellen_data(cache_dir=cache_dir)
+                
+                # Messstellen für GWK filtern
+                mkz_list = get_messstellen_for_gwk(selected_gwk, messstellen)
+                
+                if not mkz_list:
+                    st.warning(f"⚠️ Keine Messstellen für {selected_gwk} gefunden")
+                else:
+                    st.success(f"✅ {len(mkz_list)} Messstellen gefunden")
+                    
+                    # Messstelle auswählen
+                    selected_mkz = st.selectbox(
+                        "Messstelle auswählen:",
+                        mkz_list,
+                        key="mkz_select_ts"
+                    )
+                    
+                    # Ganglinie plotten
+                    fig_mkz = create_messstellen_plot(
+                        mkz=selected_mkz,
+                        gwk_id=selected_gwk,
+                        cache_dir=cache_dir
+                    )
+                    
+                    if fig_mkz:
+                        st.plotly_chart(fig_mkz, use_container_width=True)
+                        
+                        # Trend-Optionen
+                        with st.expander("📐 Trend berechnen (Grimm-Strele)"):
+                            col1, col2 = st.columns(2)
+                            trend_start = col1.date_input(
+                                "Trend von:",
+                                value=pd.to_datetime("2000-01-01"),
+                                key="trend_start_ts"
+                            )
+                            trend_end = col2.date_input(
+                                "Trend bis:",
+                                value=pd.to_datetime("2023-12-31"),
+                                key="trend_end_ts"
+                            )
+                            
+                            if st.button("Trend berechnen", key="calc_trend_ts"):
+                                with st.spinner("Berechne Trend..."):
+                                    result = compute_mkz_trend(
+                                        mkz=selected_mkz,
+                                        trend_ab=trend_start,
+                                        trend_bis=trend_end,
+                                        cache_dir=cache_dir,
+                                    )
+                                    
+                                    if "error" in result:
+                                        st.error(f"Fehler: {result['error']}")
+                                    else:
+                                        col1, col2, col3 = st.columns(3)
+                                        col1.metric("Anstieg", f"{result['Anstieg [cm/a]']:.2f} cm/a")
+                                        col2.metric("Grimm-Strele", f"{result['Grimm-Strele [%/a]']:.2f} %/a")
+                                        col3.metric("Trend", result["Trend"])
+                                        
+                                        st.info(
+                                            f"**Anzahl Werte:** {result['Anzahl Werte']}\n\n"
+                                            f"**Spanne:** {result['Spanne [cm]']:.1f} cm"
+                                        )
+                    else:
+                        st.warning("Keine Zeitreihe für diese Messstelle verfügbar")
+            
+            except Exception as e:
+                st.error(f"❌ Fehler beim Laden der Messstellen:\n\n```\n{e}\n```")
+                logger.exception("Messstellen loading failed")
 
 
 # ============================================================================
@@ -815,7 +1084,7 @@ def page_map() -> None:
     
     # ── Karte ──
     try:
-        fig = create_simple_gwk_map(
+        fig = create_gwk_map(
             gdf=gdf,
             comparison_df=data["comparison"],
             selected_gwk=highlight_gwk,
@@ -828,9 +1097,9 @@ def page_map() -> None:
             
             st.info(
                 "**Legende:**\n"
-                "- 🟢 **Grün:** GWN-Zunahme\n"
-                "- 🟡 **Gelb:** Keine Änderung\n"
-                "- 🔴 **Rot:** GWN-Rückgang\n"
+                "- 🟢 **Grün:** GWN-Zunahme (> +10 mm/a)\n"
+                "- 🟡 **Gelb:** Keine signifikante Änderung (-10 bis +10 mm/a)\n"
+                "- 🔴 **Rot:** GWN-Rückgang (< -10 mm/a)\n"
                 "- Hover für Details zu jedem GWK"
             )
     
