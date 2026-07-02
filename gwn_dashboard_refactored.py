@@ -641,7 +641,7 @@ def load_messstellen_data(cache_dir: str = "./cache") -> pd.DataFrame:
         return pd.read_csv(cache_file, sep=";", encoding="utf-8", parse_dates=["Erstes_Messdatum", "Letztes_Messdatum"])
     
     # Von NIWIS laden
-    url = "https://www.umwelt.sachsen.de/umwelt/infosysteme/niwis/messwerte.ashx?para=gw&kat=uebersicht"
+    url = "https://www.umwelt.sachsen.de/umwelt/infosysteme/niwis/weitere/"
     local_file = cache_path / "messstellen_temp.csv"
     
     urlretrieve(url, local_file)
