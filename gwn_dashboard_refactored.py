@@ -267,15 +267,38 @@ def create_messstellen_plot(mkz: str, gwk_id: str, cache_dir: str = "./cache"):
         return None
 
 
+@st.cache_data
+def load_gwk_geometries(shapefile_path: str):
+    """Lädt GWK-Geometrien aus Shapefile"""
+    try:
+        gdf = gpd.read_file(shapefile_path)
+        
+        # Koordinatensystem prüfen und ggf. nach WGS84 transformieren
+        if gdf.crs is not None and gdf.crs.to_epsg() != 4326:
+            gdf = gdf.to_crs(epsg=4326)
+        
+        # Spalte 'desc' als GWK_ID verwenden
+        if 'desc' in gdf.columns:
+            gdf['GWK_ID'] = gdf['desc'].astype(str).str.strip()
+        
+        return gdf
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Shapefile: {e}")
+        return None
+
+
 def get_messstellen_for_gwk(gwk_id: str, messstellen_df: pd.DataFrame) -> list[str]:
     """Findet Messstellen für ein GWK."""
     
     if messstellen_df is None or messstellen_df.empty:
         return []
     
-    # Filter nach GWK_ID (falls Spalte existiert)
-    if 'GWK_ID' in messstellen_df.columns:
-        mkz_list = messstellen_df[messstellen_df['GWK_ID'] == gwk_id]['MKZ'].dropna().unique().tolist()
+    # Filter nach GWK25 (NICHT GWK_ID!)
+    if 'GWK25' in messstellen_df.columns:
+        mkz_list = messstellen_df[messstellen_df['GWK25'] == gwk_id]['MKZ'].dropna().unique().tolist()
+    elif 'GWK' in messstellen_df.columns:
+        # Fallback auf GWK-Spalte
+        mkz_list = messstellen_df[messstellen_df['GWK'] == gwk_id]['MKZ'].dropna().unique().tolist()
     else:
         # Fallback: Name-Matching
         mkz_list = messstellen_df['MKZ'].dropna().unique().tolist()
@@ -1053,9 +1076,13 @@ def page_map() -> None:
         
         if shapefile_path and Path(shapefile_path).exists():
             with st.spinner("🗺️ Lade Geometrien..."):
-                gdf = gpd.read_file(shapefile_path)
+                gdf = load_gwk_geometries(shapefile_path)  # ← GEÄNDERT
             
-            st.success(f"✅ {len(gdf)} Geometrien geladen")
+            if gdf is not None and not gdf.empty:
+                st.success(f"✅ {len(gdf)} Geometrien geladen")
+            else:
+                st.warning("⚠️ Keine Geometrien im Shapefile gefunden")
+                return
         else:
             st.warning("⚠️ Shapefile nicht gefunden. Karte nicht verfügbar.")
             st.info(f"Erwarteter Pfad: `{shapefile_path}`")
