@@ -634,9 +634,6 @@ def create_simple_gwk_map(gdf, comparison_df, selected_gwk=None, thresholds=None
     gdf_merged['lon'] = gdf_merged.centroid.x
     gdf_merged['lat'] = gdf_merged.centroid.y
     
-    import json
-    geojson = json.loads(gdf_merged.to_json())
-    
     # Zentrum berechnen
     center_lat = gdf_merged['lat'].mean()
     center_lon = gdf_merged['lon'].mean()
